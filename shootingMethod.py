@@ -44,20 +44,20 @@ class RungeKutta:
 
             result.append({'t': t, 'y': u, 'dy': v})
 
-            k1 = equation.argument(t, u0)
-            l1 = v
+            k1 = equation.h * v
+            l1 = equation.h * equation.argument(t, u)
 
-            k2 = equation.argument(t + equation.h/2, u0)
-            l2 = (v+k1/2)
+            k2 = equation.h * (v + 0.5*l1)
+            l2 = equation.h * equation.argument(t + 0.5*equation.h, u + 0.5*k1)
 
-            k3 = equation.argument(t + equation.h/2, u0)
-            l3 = (v+k2/2)
+            k3 = equation.h * (v + 0.5*l2)
+            l3 = equation.h * equation.argument(t + 0.5*equation.h, u + 0.5*k2)
 
-            k4 = equation.argument(t + equation.h, u0)
-            l4 = (v+k3)
+            k4 = equation.h * (v + l3)
+            l4 = equation.h * equation.argument(t + equation.h, u + k3)
 
-            u += equation.h*(l1 + 2*l2 + 2*l3 + l4)/6
-            v += equation.h*(k1 + 2*k2 + 2*k3 + k4)/6
+            u += (k1 + 2*k2 + 2*k3 + k4)/6
+            v += (l1 + 2*l2 + 2*l3 + l4)/6
 
         return result
 
@@ -86,14 +86,14 @@ class ShootingMethod:
                 equation.points()
             )
 
-            dy_b_k1 = R0[-1]['dy'] - equation.dy_b
-            dy_b_k2 = R1[-1]['dy'] - equation.dy_b
+            d_dy_b_k1 = R0[-1]['dy'] - equation.dy_b
+            d_dy_b_k2 = R1[-1]['dy'] - equation.dy_b
 
-            df = (dy_b_k2 - dy_b_k1)/(k2-k1)
+            df = (d_dy_b_k2 - d_dy_b_k1)/(k2-k1)
 
-            k1, k2 = k2, k2 - dy_b_k2 / df
+            k1, k2 = k2, k2 - d_dy_b_k2 / df
 
-            distance = abs(dy_b_k2)
+            distance = abs(d_dy_b_k2)
 
             if distance <= eps:
                 print ("Vzdalenost:", distance)
@@ -117,7 +117,7 @@ equation.p = float(input("Parametr p = "))
 equation.y_a = float(input("Okrajova podminka y(a): "))
 equation.dy_b = float(input("Okrajova podminka y'(b): "))
 
-k0 = float(input("Finalni hodnota y'(a): "))
+k0 = float(input("Pocatecni nastrel y'(a): "))
 eps = 0.000001 # float(input("Tolerance: "))
 maxIterations = 100000 # int(input("Maximalni pocet iteraci : "))
 
